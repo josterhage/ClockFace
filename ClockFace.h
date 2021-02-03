@@ -91,7 +91,9 @@ const uint8_t daysInMonth[] PROGMEM = {
 class ClockFace
 {
 public:
-    ClockFace(LiquidCrystal);
+    ClockFace();
+
+    void registerLcd(LiquidCrystal);
 
     void showFace();
 

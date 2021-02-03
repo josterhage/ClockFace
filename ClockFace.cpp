@@ -1,12 +1,15 @@
 #include "ClockFace.h"
 
-ClockFace::ClockFace(LiquidCrystal liquidCrystal)
+ClockFace::ClockFace()
 {
+    Wire.begin();
+    highlightedView = none;
+}
+
+void ClockFace::registerLcd(LiquidCrystal liquidCrystal){
     lcd = &liquidCrystal;
     // for this constructor we expect an lcd that hasn't been started
     lcd->begin(16, 2);
-    Wire.begin();
-    highlightedView = none;
 }
 
 void ClockFace::showFace()
@@ -96,7 +99,7 @@ void ClockFace::tick(bool tock)
         else
         {
             hideColons();
-            hideHighlighted;
+            hideHighlighted();
         }
     }
 }
@@ -139,9 +142,10 @@ void ClockFace::incrementDay()
     uint8_t value = clock.getDate();
     uint8_t month = clock.getMonth(century);
     uint8_t year = clock.getYear();
+    uint8_t days;
     if (month != 2)
     {
-        uint8_t days = pgm_read_byte_near(daysInMonth[month]);
+        days = pgm_read_byte_near(daysInMonth[month]);
     }
     else
     {
@@ -258,6 +262,7 @@ void ClockFace::printHour(){
 }
 
 void ClockFace::printMinute(){
+    char digits[2];
     uint8_t value = clock.getMinute();
     sprintf(digits,"%02d",value);
     lcd->setCursor(M_COL,T_ROW);
@@ -265,6 +270,7 @@ void ClockFace::printMinute(){
 }
 
 void ClockFace::printSecond(){
+    char digits[2];
     uint8_t value = clock.getSecond();
     sprintf(digits,"%02d",value);
     lcd->setCursor(S_COL,T_ROW);
