@@ -43,26 +43,40 @@ const char fri[] PROGMEM = "FRI";
 const char sat[] PROGMEM = "SAT";
 
 const char *const daysOfWeek[] PROGMEM = {
-    sun, mon, tue, wed, thu, fri, sat};
-
-enum MonthFormat
-{
-    m,  //two-digit
-    mm, //three-letter
+    sun, mon, tue, wed, thu, fri, sat
 };
 
-const char jan[] PROGMEM = "JAN";
-const char feb[] PROGMEM = "FEB";
-const char mar[] PROGMEM = "MAR";
-const char apr[] PROGMEM = "APR";
-const char may[] PROGMEM = "MAY";
-const char jun[] PROGMEM = "JUN";
-const char jul[] PROGMEM = "JUL";
-const char aug[] PROGMEM = "AUG";
-const char sep[] PROGMEM = "SEP";
-const char oct[] PROGMEM = "OCT";
-const char nov[] PROGMEM = "NOV";
-const char dec[] PROGMEM = "DEC";
+//not implemented
+// enum MonthFormat
+// {
+//     m,  //two-digit
+//     mm, //three-letter
+// };
+
+// const char jan[] PROGMEM = "JAN";
+// const char feb[] PROGMEM = "FEB";
+// const char mar[] PROGMEM = "MAR";
+// const char apr[] PROGMEM = "APR";
+// const char may[] PROGMEM = "MAY";
+// const char jun[] PROGMEM = "JUN";
+// const char jul[] PROGMEM = "JUL";
+// const char aug[] PROGMEM = "AUG";
+// const char sep[] PROGMEM = "SEP";
+// const char oct[] PROGMEM = "OCT";
+// const char nov[] PROGMEM = "NOV";
+// const char dec[] PROGMEM = "DEC";
+
+// const char *const months[] PROGMEM = {
+//     jan, feb, mar, apr,
+//     may, jun, jul, aug,
+//     sep, oct, nov, dec
+// }
+
+const uint8_t daysInMonth[] PROGMEM = {
+    31, 28, 31, 30,
+    31, 30, 31, 31,
+    30, 31, 30, 31
+};
 
 //positions
 //assumes 16x2 lcd
@@ -83,7 +97,7 @@ public:
 
     void showHold();
 
-    void tick();
+    void tick(bool tock);
 
     void incrementHour();
 
@@ -97,26 +111,24 @@ public:
 
     void incrementYear();
 
-    void incrementDow();
+    void incrementDoW();
 
     void flipH12();
 
     void highlightView(ViewSelector view);
 
-    void hide();
-
     void setDateSeparator(char separator);
 
-    void setMonthFormat(MonthFormat fmt);
+// not implemented
+    // void setMonthFormat(MonthFormat fmt);
 
     uint16_t getMillisAlignment();
 
 private:
     void printColons();
+    void hideColons();
 
     void printDateSeparators();
-
-    uint8_t bcdtobin(uint8_t bcd);
 
     void printHour();
     void printMinute();
@@ -126,11 +138,14 @@ private:
     void printDay();
     void printMonth();
     void printYear();
-    void printDow();
+    void printDoW();
+
+    void hideHighlighted();
+    void hideAMPM();
 
     DS3231 clock;
 
-    LiquidCrystal *_lcd;
+    LiquidCrystal *lcd;
 
     ViewSelector highlightedView;
 
