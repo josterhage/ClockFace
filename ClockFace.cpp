@@ -56,13 +56,15 @@ void ClockFace::showFace()
 void ClockFace::showHold()
 {
     faceShowing = false;
+    holdTicks = 3;
+
     lcd->clear();
 
     lcd->setCursor(4, 0);
-    lcd->print("Hold...");
+    lcd->print(F("Hold..."));
 
     lcd->setCursor(7, 1);
-    lcd->print("3");
+    lcd->print(holdTicks);
 }
 
 void ClockFace::tick(bool tock)
@@ -70,9 +72,15 @@ void ClockFace::tick(bool tock)
     bool _h12, _pm, _century;
     if (faceShowing)
     {
+        if(highlightedView == h12){
+            printH12(tock);
+            return;
+        }
+
         if (!tock)
         {
             printColons();
+            printHighlighted();
             if (clock.getSecond() == 0)
             {
                 if (clock.getMinute() == 0)
@@ -101,6 +109,51 @@ void ClockFace::tick(bool tock)
             hideColons();
             hideHighlighted();
         }
+    } else {
+        //hold showing
+        if(!tock){
+            holdTicks--;
+            
+            //this shouldn't happen, the input logic is supposed to change everything
+            //over before the tick event
+            // if(holdTicks == 0){
+            //     faceShowing = true;
+            //     showFace();
+            //     return;
+            // }
+            
+            lcd->setCursor(7, 1);
+            lcd->print(holdTicks);
+        }
+    }
+}
+
+void ClockFace::incrementView(ViewSelector view){
+    switch(view){
+        case hour:
+            incrementHour();
+            break;
+        case minute:
+            incrementMinute();
+            break;
+        case second:
+            zeroSecond();
+            break;
+        case day:
+            incrementDay();
+            break;
+        case month:
+            incrementMonth();
+            break;
+        case year:
+            incrementYear();
+            break;
+        case dow:
+            incrementDoW();
+            break;
+        case h12:
+            flipH12();
+            break; 
     }
 }
 
@@ -212,22 +265,19 @@ void ClockFace::flipH12(){
 
 void ClockFace::highlightView(ViewSelector view){
     highlightedView = view;
+    if(view == none){
+        lcd->clear();
+    }
 }
 
-void ClockFace::setDateSeparator(char separator){
-    dateSeparator = separator;
+void ClockFace::setDateSeparator(const char* separator){
+    dateSeparator = *separator;
+    Serial.println(dateSeparator,HEX);
     printDateSeparators();
 }
 
-// not implemented
-// void ClockFace::setMonthFormat(MonthFormat fmt){
-
-// }
-
-uint16_t ClockFace::getMillisAlignment(){
-    uint8_t s = clock.getSecond();
-    while(s = clock.getSecond());
-    return (uint16_t)(millis() % 1000);
+bool ClockFace::getH12(){
+    return isH12;
 }
 
 // private functions
@@ -317,7 +367,66 @@ void ClockFace::printDoW(){
     lcd->print(day);
 }
 
+void ClockFace::printH12(bool tock){
+    if(!h12Clear) {
+        lcd->clear();
+        h12Clear = true;
+    }
+    if(tock){
+        if(isH12){
+            lcd->setCursor(5,0);
+            lcd->print(F("       "));
+        } else {
+            lcd->setCursor(5,1);
+            lcd->print(F("       "));
+        }
+    } else {
+        lcd->setCursor(5,0);
+        lcd->print(F("12-HOUR"));
+        lcd->setCursor(5,1);
+        lcd->print(F("24-HOUR"));
+    }
+}
+
+void ClockFace::printHighlighted(){
+    switch(hiddenView){
+        case hour:
+            printHour();
+            break;
+        case minute:
+            printMinute();
+            break;
+        case second:
+            printSecond();
+            break;
+        case day:
+            printDay();
+            break;
+        case month:
+            printMonth();
+            break;
+        case year:
+            printYear();
+            break;
+        case dow:
+            printDoW();
+            break;
+        case h12:
+            printH12(false);
+            break;
+        case ampm:
+            printAMPM();
+            break;
+        case none:
+            h12Clear = false;
+            showFace();
+            break;
+    }
+    hiddenView = none;
+}
+
 void ClockFace::hideHighlighted(){
+    hiddenView = highlightedView;
     switch(highlightedView){
         case hour:
             lcd->setCursor(H_COL,T_ROW);

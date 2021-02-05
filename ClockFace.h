@@ -78,6 +78,9 @@ const uint8_t daysInMonth[] PROGMEM = {
     30, 31, 30, 31
 };
 
+const char hours12[] PROGMEM = "12-HOUR";
+const char hours24[] PROGMEM = "24-HOUR";
+
 //positions
 //assumes 16x2 lcd
 #define T_ROW 0
@@ -101,30 +104,13 @@ public:
 
     void tick(bool tock);
 
-    void incrementHour();
-
-    void incrementMinute();
-
-    void zeroSecond();
-
-    void incrementDay();
-
-    void incrementMonth();
-
-    void incrementYear();
-
-    void incrementDoW();
-
-    void flipH12();
+    void incrementView(ViewSelector view);
 
     void highlightView(ViewSelector view);
 
-    void setDateSeparator(char separator);
+    void setDateSeparator(const char* separator);
 
-// not implemented
-    // void setMonthFormat(MonthFormat fmt);
-
-    uint16_t getMillisAlignment();
+    bool getH12();
 
 private:
     void printColons();
@@ -141,21 +127,44 @@ private:
     void printMonth();
     void printYear();
     void printDoW();
+    void printH12(bool tock);
 
+    void printHighlighted();
     void hideHighlighted();
     void hideAMPM();
+
+    void incrementHour();
+
+    void incrementMinute();
+
+    void zeroSecond();
+
+    void incrementDay();
+
+    void incrementMonth();
+
+    void incrementYear();
+
+    void incrementDoW();
+
+    void flipH12();
 
     DS3231 clock;
 
     LiquidCrystal *lcd;
 
     ViewSelector highlightedView;
+    ViewSelector hiddenView;
 
     bool isH12;
 
     bool faceShowing;
 
+    bool h12Clear = false;
+
     char dateSeparator;
+
+    uint8_t holdTicks;
 };
 
 #endif
